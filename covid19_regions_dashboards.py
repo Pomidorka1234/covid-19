@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[99]:
+# In[1]:
 
 
 """
@@ -36,13 +36,13 @@ import math
 import os
 
 
-# In[3]:
+# In[ ]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[4]:
+# In[ ]:
 
 
 df_regions = df.groupby(["jour", "regionName"]).sum().reset_index()
@@ -52,13 +52,13 @@ dates_incid = list(dict.fromkeys(list(df_incid['jour'].values)))
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[5]:
+# In[ ]:
 
 
 lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
 
 
-# In[6]:
+# In[ ]:
 
 
 regions_deps = df.groupby(["departmentName", "regionName"]).sum().reset_index().loc[:,["departmentName", "regionName"]]
@@ -67,7 +67,7 @@ lits_reas_regs = lits_reas.groupby(["regionName"]).sum().reset_index()
 df_regions = df_regions.merge(lits_reas_regs, left_on="regionName", right_on="regionName")
 
 
-# In[7]:
+# In[ ]:
 
 
 def cas_journ(region):
@@ -181,7 +181,7 @@ def cas_journ(region):
     print("> " + name_fig)
 
 
-# In[8]:
+# In[ ]:
 
 
 def hosp_journ(region):   
@@ -282,7 +282,7 @@ def hosp_journ(region):
     print("> " + name_fig)
 
 
-# In[9]:
+# In[ ]:
 
 
 def rea_journ(region):
@@ -382,7 +382,7 @@ def rea_journ(region):
     print("> " + name_fig)
 
 
-# In[10]:
+# In[ ]:
 
 
 def dc_journ(region): 
@@ -495,7 +495,7 @@ def dc_journ(region):
     print("> " + name_fig)
 
 
-# In[11]:
+# In[ ]:
 
 
 
@@ -586,7 +586,7 @@ def saturation_rea_journ(region):
     print("> " + name_fig)
 
 
-# In[12]:
+# In[ ]:
 
 
 import cv2
@@ -617,7 +617,7 @@ for reg in regions:
     os.remove('images/charts/france/regions_dashboards/dc_journ_{}.jpeg'.format(reg))
 
 
-# In[13]:
+# In[ ]:
 
 
 for reg in regions:
@@ -631,7 +631,7 @@ for reg in regions:
     print(space+retourmenu+heading+string+string2)
 
 
-# In[14]:
+# In[ ]:
 
 
 print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")

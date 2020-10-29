@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[6]:
 
 
 import requests
@@ -10,10 +10,11 @@ import json
 from tqdm import tqdm
 
 
-# In[2]:
+# In[8]:
 
 
 # Download data from Santé publique France and export it to local files
+
 def download_data():
     pbar = tqdm(total=8)
     url_metadata = "https://www.data.gouv.fr/fr/organizations/sante-publique-france/datasets-resources.csv"
@@ -26,9 +27,9 @@ def download_data():
     geojson = requests.get(url_geojson)
     pbar.update(3)
     
-    with open('data/france/metadata.csv', 'wb') as f:
+    """with open('data/france/metadata.csv', 'wb') as f:
         f.write(metadata.content)
-    pbar.update(4)
+    pbar.update(4)"""
     
     with open('data/france/dep.geojson', 'wb') as f:
         f.write(geojson.content)
@@ -198,6 +199,12 @@ def import_data_hosp_clage():
     
     return df_hosp
         
+
+
+# In[9]:
+
+
+#download_data()
 
 
 # In[5]:

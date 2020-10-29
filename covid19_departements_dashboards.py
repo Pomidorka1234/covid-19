@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[ ]:
 
 
 import pandas as pd
@@ -36,13 +36,13 @@ import math
 import os
 
 
-# In[3]:
+# In[ ]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[4]:
+# In[ ]:
 
 
 df_departements = df.groupby(["jour", "departmentName"]).sum().reset_index()
@@ -56,7 +56,15 @@ last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).
 departements_nb = list(dict.fromkeys(list(df_tests_viros['dep'].values))) 
 
 
-# In[9]:
+# In[ ]:
+
+
+lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
+
+df_departements_lits = df_departements.merge(lits_reas, left_on="departmentName", right_on="nom_dpt")
+
+
+# In[ ]:
 
 
 def cas_journ(departement):
@@ -171,7 +179,7 @@ def cas_journ(departement):
     print("> " + name_fig)
 
 
-# In[10]:
+# In[ ]:
 
 
 def hosp_journ(departement):   
@@ -273,7 +281,7 @@ def hosp_journ(departement):
     print("> " + name_fig)
 
 
-# In[11]:
+# In[ ]:
 
 
 def rea_journ(departement):
@@ -374,7 +382,7 @@ def rea_journ(departement):
     print("> " + name_fig)
 
 
-# In[12]:
+# In[ ]:
 
 
 def dc_journ(departement): 
@@ -488,7 +496,98 @@ def dc_journ(departement):
     print("> " + name_fig)
 
 
-# In[13]:
+# In[ ]:
+
+
+
+def saturation_rea_journ(dep):
+    df_dep = df_departements_lits[df_departements_lits["departmentName"] == dep]
+    df_saturation = 100 * df_dep["rea"] / df_dep["LITS_y"]
+    
+    range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "saturation_rea_journ_"+dep, [0, df_saturation.max()]
+    title = "<b>Occupation des réa.</b> par les patients Covid19 - " + dep
+
+    fig = go.Figure()
+
+    colors_sat = ["green" if val < 40 else "red" if val > 80  else "orange" for val in df_saturation.values]
+    fig.add_trace(go.Bar(
+        x = df_dep["jour"],
+        y = df_saturation,
+        name = "Saturation",
+        marker_color=colors_sat,
+        #line_width=8,
+        opacity=0.8,
+        #fill='tozeroy',
+        #fillcolor="rgba(8, 115, 191, 0.3)",
+        showlegend=False
+    ))
+
+    fig.update_yaxes(zerolinecolor='Grey', range=range_y, tickfont=dict(size=18))
+    fig.update_xaxes(nticks=10, ticks='inside', tickangle=0, tickfont=dict(size=18))
+
+    # Here we modify the tickangle of the xaxis, resulting in rotated labels.
+    fig.update_layout(
+        margin=dict(
+                l=50,
+                r=0,
+                b=50,
+                t=70,
+                pad=0
+            ),
+        legend_orientation="h",
+        barmode='group',
+        title={
+                    'text': title,
+                    'y':0.95,
+                    'x':0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top'},
+                    titlefont = dict(
+                    size=20),
+        xaxis=dict(
+                title='',
+                tickformat='%d/%m'),
+
+        annotations = [
+                    dict(
+                        x=0,
+                        y=1,
+                        xref='paper',
+                        yref='paper',
+                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                    ),
+                    ]
+                     )
+
+    fig['layout']['annotations'] += (dict(
+            x = dates[-1], y = df_saturation.values[-1], # annotation point
+            xref='x1', 
+            yref='y1',
+            text=" <b>{} {}".format('%d' % df_saturation.values[-1], " %</b> des lits de réa. occupés par<br>des patients Covid19 le {}.".format(datetime.strptime(dates[-1], '%Y-%m-%d').strftime('%d %b'))),
+            xshift=-2,
+            yshift=10,
+            xanchor="center",
+            align='center',
+            font=dict(
+                color=colors_sat[-1],
+                size=20
+                ),
+            opacity=1,
+            ax=-70,
+            ay=-70,
+            arrowcolor=colors_sat[-1],
+            arrowsize=1.5,
+            arrowwidth=1,
+            arrowhead=0,
+            showarrow=True
+        ),)
+
+    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=0.9, width=750, height=500)
+
+    print("> " + name_fig)
+
+
+# In[ ]:
 
 
 import cv2
@@ -498,7 +597,7 @@ for dep in departements:
     hosp_journ(dep)
     rea_journ(dep)
     dc_journ(dep)
-    
+    saturation_rea_journ(dep)
     
     im1 = cv2.imread('images/charts/france/departements_dashboards/cas_journ_{}.jpeg'.format(dep))
     im2 = cv2.imread('images/charts/france/departements_dashboards/hosp_journ_{}.jpeg'.format(dep))
@@ -518,7 +617,14 @@ for dep in departements:
     os.remove('images/charts/france/departements_dashboards/dc_journ_{}.jpeg'.format(dep))
 
 
-# In[38]:
+# In[ ]:
+
+
+for dep in departements:
+    saturation_rea_journ(dep)
+
+
+# In[ ]:
 
 
 for idx,dep in enumerate(departements):
@@ -532,7 +638,7 @@ for idx,dep in enumerate(departements):
     print(space+retourmenu+heading+string+string2)
 
 
-# In[49]:
+# In[ ]:
 
 
 #print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")
@@ -548,10 +654,4 @@ print(output[:-2])
     
     
 #print("<!-- /wp:buttons -->")
-
-
-# In[51]:
-
-
-df_incid[df_incid["dep"] == "974"]
 
