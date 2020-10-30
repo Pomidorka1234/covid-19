@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[71]:
 
 
 """
@@ -21,7 +21,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[72]:
 
 
 from multiprocessing import Pool
@@ -45,18 +45,70 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 now = datetime.now()
 
 
-# In[3]:
+# In[6]:
 
 
 df_metro = data.import_data_metropoles()
 df_metro_65 = df_metro[df_metro["clage_65"] == 65]
-df_metro = df_metro[df_metro["clage_65"] == 0]
+df_metro_0 = df_metro[df_metro["clage_65"] == 0]
 
 
-# In[4]:
+# In[37]:
 
 
-for (title, df_temp, name) in [("Tous âges", df_metro, "0"), ("> 65 ans", df_metro_65, "65")]:
+list(dict.fromkeys(list(df_metro['Metropole'].values)))
+
+
+# In[55]:
+
+
+
+
+
+# In[70]:
+
+
+df_metro
+
+fig=go.Figure()
+
+metropoles = df_metro_0[df_metro_0["semaine_glissante"]==df_metro_0["semaine_glissante"].max()].sort_values(by=["ti"], ascending=False)["Metropole"].values
+
+for i,metro in enumerate(metropoles): #list(dict.fromkeys(list(df_metro['Metropole'].values))
+    y=df_metro_0[df_metro_0["Metropole"]==metro]
+    
+    fig.add_trace(go.Scatter(
+            x = [d[-10:] for d in y["semaine_glissante"].values],
+            y = y["ti"],
+            name = str(i+1) + ".<b> " + metro + "</b>" + "<br> Incidence : " + str(math.trunc(y["ti"].values[-1])) + "",
+            line_width=5,
+            marker_size=10,
+            mode="markers+lines",
+            opacity=1))
+    
+    fig.update_layout(
+        
+        title={
+            'text': "<b>Taux d'incidence du Covid19 dans les 22 métropoles<br></b>{}, nombre de cas sur 7 j. pour 100k. hab.".format("covidtracker.fr"),
+            'y':0.97,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'},
+            titlefont = dict(
+                size=20),
+    )
+    
+    
+name_fig = "line_metropoles"
+fig.write_image("images/charts/france/{}.jpeg".format(name_fig), scale=2, width=1000, height=1000)
+
+plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
+
+
+# In[49]:
+
+
+for (title, df_temp, name) in [("Tous âges", df_metro_0, "0"), ("> 65 ans", df_metro_65, "65")]:
     metros = list(dict.fromkeys(list(df_temp['Metropole'].values)))
     metros_ordered = df_temp[df_temp['semaine_glissante'] == df_temp['semaine_glissante'].max()].sort_values(by=["ti"], ascending=True)["Metropole"].values
     dates_heatmap = list(dict.fromkeys(list(df_temp['semaine_glissante'].values))) 
@@ -86,7 +138,7 @@ for (title, df_temp, name) in [("Tous âges", df_metro, "0"), ("> 65 ans", df_me
     fig.update_layout(
         
         title={
-            'text': "<b>Taux d'incidence du Covid19 dans les 22 plus grandes métropoles<br>{}</b>, nombre de cas sur 7 j. pour 100k. hab.".format(title),
+            'text': "<b>Taux d'incidence du Covid19 dans les 22 métropoles<br>{}</b>, nombre de cas sur 7 j. pour 100k. hab.".format(title),
             'y':0.97,
             'x':0.5,
             'xanchor': 'center',

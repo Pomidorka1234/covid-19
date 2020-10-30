@@ -27,9 +27,9 @@ def download_data():
     geojson = requests.get(url_geojson)
     pbar.update(3)
     
-    """with open('data/france/metadata.csv', 'wb') as f:
+    with open('data/france/metadata.csv', 'wb') as f:
         f.write(metadata.content)
-    pbar.update(4)"""
+    pbar.update(4)
     
     with open('data/france/dep.geojson', 'wb') as f:
         f.write(geojson.content)
