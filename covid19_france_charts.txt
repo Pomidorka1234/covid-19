@@ -955,6 +955,7 @@ for i in ("", "log"):
                     dict(
                         x=0.3,
                         y=0.95,
+                        font=dict(size=12),
                         xref='paper',
                         yref='paper',
                         text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
@@ -1180,6 +1181,7 @@ for i in ("", "log"):
                     dict(
                         x=0.3,
                         y=0.95,
+                        font=dict(size=12),
                         xref='paper',
                         yref='paper',
                         text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
