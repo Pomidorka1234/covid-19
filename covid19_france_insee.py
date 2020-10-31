@@ -11,26 +11,28 @@ import plotly
 from datetime import datetime
 
 
-# In[9]:
+# In[14]:
 
 
 df_mortalite = pd.read_csv('data/france/deces_quotidiens_departement_csv.csv', sep=";", encoding="'windows-1252'")
 
 df_mortalite_france = df_mortalite[df_mortalite["Zone"] == "France"]
-df_mortalite_france.loc[:,"Total_deces_2018_diff"] = df_mortalite_france["Total_deces_2018"].diff().rolling(window=7).mean()
-df_mortalite_france.loc[:,"Total_deces_2019_diff"] = df_mortalite_france["Total_deces_2019"].diff().rolling(window=7).mean()
-df_mortalite_france.loc[:,"Total_deces_2020_diff"] = df_mortalite_france["Total_deces_2020"].diff().rolling(window=7).mean()
+window = 14
+df_mortalite_france.loc[:,"Total_deces_2018_diff"] = df_mortalite_france["Total_deces_2018"].diff().rolling(window=window).mean()
+df_mortalite_france.loc[:,"Total_deces_2019_diff"] = df_mortalite_france["Total_deces_2019"].diff().rolling(window=window).mean()
+df_mortalite_france.loc[:,"Total_deces_2020_diff"] = df_mortalite_france["Total_deces_2020"].diff().rolling(window=window).mean()
 
 
-# In[19]:
+# In[15]:
 
 
 print(df_mortalite_france.dropna()["Total_deces_2018"].values[-1])
 print(df_mortalite_france.dropna()["Total_deces_2019"].values[-1])
 print(df_mortalite_france.dropna()["Total_deces_2020"].values[-1])
+print(df_mortalite_france.dropna())
 
 
-# In[10]:
+# In[16]:
 
 
 #### Construction du graphique
@@ -80,7 +82,7 @@ fig.update_layout(
         ),
     legend_orientation="h",
     title={
-                'text': "<b>Mortalité en France</b><br><sub>Moyenne mobile de 7 jours pour lisser les irrégularités".format(),
+                'text': "<b>Mortalité en France</b><br><sub>Moyenne mobile de {} jours pour lisser les irrégularités".format(window),
                 'y':0.95,
                 'x':0.5,
                 'xanchor': 'center',
@@ -117,4 +119,10 @@ fig.update_layout(
                  )
 plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 print("> " + name_fig)
+
+
+# In[ ]:
+
+
+
 

@@ -4,7 +4,7 @@
 # # COVID-19 French Charts
 # Guillaume Rozier, 2020
 
-# In[13]:
+# In[32]:
 
 
 """
@@ -26,7 +26,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[14]:
+# In[33]:
 
 
 from multiprocessing import Pool
@@ -50,10 +50,11 @@ import cv2
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 colors = px.colors.qualitative.D3 + plotly.colors.DEFAULT_PLOTLY_COLORS + px.colors.qualitative.Plotly + px.colors.qualitative.Dark24 + px.colors.qualitative.Alphabet
 show_charts = False
+PATH = "data/france/stats/"
 now = datetime.now()
 
 
-# In[15]:
+# In[34]:
 
 
 try:
@@ -69,7 +70,7 @@ except:
 
 # # Data download and import
 
-# In[19]:
+# In[35]:
 
 
 data.download_data()
@@ -77,7 +78,7 @@ data.download_data()
 
 # ## Data transformations
 
-# In[21]:
+# In[36]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
@@ -111,7 +112,7 @@ df_france = df.groupby('jour').sum().reset_index()
 regions = list(dict.fromkeys(list(df['regionName'].values))) 
 
 
-# In[ ]:
+# In[37]:
 
 
 #Calcul sorties de réa
@@ -130,7 +131,39 @@ df_france_last15 = df_france[ df_france["jour"].isin(dates[-19:]) ]
 df_tests_tot_last15 = df_tests_tot[ df_tests_tot["jour"].isin(dates[-19:]) ]
 
 
-# In[ ]:
+# In[38]:
+
+
+df_france = df.groupby(["jour"]).sum().reset_index()
+
+data_json = {}
+
+#rea et hosp
+for val in ["rea", "hosp", "dc_new", "rea_new", "hosp_new"]:
+    rea_json = {}
+    date = df_france["jour"].max()
+    rea_json["date"] = date[-2:] + "/" + date[-5:-3]
+    
+    valeur = str(df_france[val].values[-1].astype(int))
+    
+    if int(valeur)<0:
+        valeur = "--"
+        
+    if len(valeur)>3:
+        valeur = valeur[:len(valeur)-3] + " " + valeur[-3:]
+        
+    if "new" in val:
+        if int(valeur) > 0:
+            valeur = "+ " + valeur
+        
+    rea_json["valeur"] = valeur
+    data_json[val] = rea_json
+    
+with open(PATH + 'stats.json', 'w') as outfile:
+    json.dump(data_json, outfile)
+
+
+# In[39]:
 
 
 """fig = go.Figure()
