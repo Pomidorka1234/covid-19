@@ -131,9 +131,21 @@ df_france_last15 = df_france[ df_france["jour"].isin(dates[-19:]) ]
 df_tests_tot_last15 = df_tests_tot[ df_tests_tot["jour"].isin(dates[-19:]) ]
 
 
-# In[38]:
+# In[66]:
 
 
+def traitement_val(valeur, plus_sign=False):
+    if int(valeur)<0:
+        valeur = "--"
+        
+    if (int(valeur) > 0) & plus_sign:
+        valeur = "+ " + valeur
+        
+    if len(valeur)>3:
+        valeur = valeur[:len(valeur)-3] + " " + valeur[-3:]
+
+    return valeur
+            
 df_france = df.groupby(["jour"]).sum().reset_index()
 
 data_json = {}
@@ -145,19 +157,23 @@ for val in ["rea", "hosp", "dc_new", "rea_new", "hosp_new"]:
     rea_json["date"] = date[-2:] + "/" + date[-5:-3]
     
     valeur = str(df_france[val].values[-1].astype(int))
-    
-    if int(valeur)<0:
-        valeur = "--"
+    valeur = traitement_val(valeur, plus_sign=("new" in val))
         
-    if len(valeur)>3:
-        valeur = valeur[:len(valeur)-3] + " " + valeur[-3:]
-        
-    if "new" in val:
-        if int(valeur) > 0:
-            valeur = "+ " + valeur
         
     rea_json["valeur"] = valeur
     data_json[val] = rea_json
+    
+    
+#####
+    
+df_tests_viros_france = df_tests_viros[df_tests_viros["cl_age90"]==0].groupby(["jour"]).sum().reset_index()
+tests_last7 = traitement_val(str(df_tests_viros_france["P"].values[-7:].sum()), True)
+
+dict_json = {}
+date = df_tests_viros_france["jour"].dropna().max()
+dict_json["date"] = date[-2:] + "/" + date[-5:-3]
+dict_json["valeur"] = str(tests_last7)
+data_json["tests_last7"] = dict_json
     
 with open(PATH + 'stats.json', 'w') as outfile:
     json.dump(data_json, outfile)
@@ -184,7 +200,7 @@ fig.show()"""
 
 # ## Variation journée
 
-# In[ ]:
+# In[40]:
 
 
 fig = go.Figure()
