@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[2]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[ ]:
+# In[3]:
 
 
 import pandas as pd
@@ -36,13 +36,13 @@ import math
 import os
 
 
-# In[ ]:
+# In[4]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[ ]:
+# In[5]:
 
 
 df_departements = df.groupby(["jour", "departmentName"]).sum().reset_index()
@@ -56,7 +56,7 @@ last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).
 departements_nb = list(dict.fromkeys(list(df_tests_viros['dep'].values))) 
 
 
-# In[ ]:
+# In[6]:
 
 
 lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
@@ -624,7 +624,7 @@ for dep in departements:
     saturation_rea_journ(dep)
 
 
-# In[ ]:
+# In[9]:
 
 
 for idx,dep in enumerate(departements):
@@ -633,9 +633,10 @@ for idx,dep in enumerate(departements):
     heading = "<!-- wp:heading --><h2 id=\"{}\">{}</h2><!-- /wp:heading -->\n".format(dep, dep + " (" + numero_dep + ")")
     string = "<p align=\"center\"> <a href=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/departements_dashboards/dashboard_jour_{}.jpeg\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/departements_dashboards/dashboard_jour_{}.jpeg\" width=\"75%\"> </a></p>\n".format(dep, dep)
     string2 = "<p align=\"center\"> <a href=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/heatmaps_deps/heatmap_taux_{}.jpeg\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/heatmaps_deps/heatmap_taux_{}.jpeg\" width=\"60%\"> </a></p>\n".format(numero_dep, numero_dep)
+    string_saturation = "<p align=\"center\"> <a href=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/departements_dashboards/saturation_rea_journ_{}.jpeg\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/departements_dashboards/saturation_rea_journ_{}.jpeg\" width=\"60%\"> </a></p>\n".format(dep, dep)
     space = "<!-- wp:spacer {\"height\":50} --><div style=\"height:50px\" aria-hidden=\"true\" class=\"wp-block-spacer\"></div><!-- /wp:spacer -->"
     retourmenu="<a href=\"#Menu\">Retour au menu</a>"
-    print(space+retourmenu+heading+string+string2)
+    print(space+retourmenu+heading+string+string2+string_saturation)
 
 
 # In[ ]:
