@@ -11,7 +11,7 @@ import plotly
 from datetime import datetime
 
 
-# In[14]:
+# In[8]:
 
 
 df_mortalite = pd.read_csv('data/france/deces_quotidiens_departement_csv.csv', sep=";", encoding="'windows-1252'")
@@ -23,7 +23,7 @@ df_mortalite_france.loc[:,"Total_deces_2019_diff"] = df_mortalite_france["Total_
 df_mortalite_france.loc[:,"Total_deces_2020_diff"] = df_mortalite_france["Total_deces_2020"].diff().rolling(window=window).mean()
 
 
-# In[15]:
+# In[9]:
 
 
 print(df_mortalite_france.dropna()["Total_deces_2018"].values[-1])
@@ -32,7 +32,7 @@ print(df_mortalite_france.dropna()["Total_deces_2020"].values[-1])
 print(df_mortalite_france.dropna())
 
 
-# In[16]:
+# In[10]:
 
 
 #### Construction du graphique
@@ -119,10 +119,4 @@ fig.update_layout(
                  )
 plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 print("> " + name_fig)
-
-
-# In[ ]:
-
-
-
 

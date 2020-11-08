@@ -36,13 +36,13 @@ import math
 import os
 
 
-# In[ ]:
+# In[3]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[ ]:
+# In[4]:
 
 
 df_regions = df.groupby(["jour", "regionName"]).sum().reset_index()
@@ -52,13 +52,13 @@ dates_incid = list(dict.fromkeys(list(df_incid['jour'].values)))
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
-# In[ ]:
+# In[5]:
 
 
 lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
 
 
-# In[ ]:
+# In[6]:
 
 
 regions_deps = df.groupby(["departmentName", "regionName"]).sum().reset_index().loc[:,["departmentName", "regionName"]]
@@ -553,7 +553,7 @@ def saturation_rea_journ(region):
                         y=1,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        text='Date : {}. Source : Santé publique France. Auteur : @guillaumerozier - covidtracker.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
                     ),
                     ]
                      )
@@ -573,7 +573,7 @@ def saturation_rea_journ(region):
                 ),
             opacity=1,
             ax=-70,
-            ay=-70,
+            ay=-20,
             arrowcolor=colors_sat[-1],
             arrowsize=1.5,
             arrowwidth=1,

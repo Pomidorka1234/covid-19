@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[11]:
 
 
 # Guillaume Rozier - 2020 - MIT License
@@ -14,6 +14,7 @@ import math
 from datetime import datetime
 import locale
 import tweepy
+import json
 import pandas as pd
 import secrets as s
 from datetime import timedelta
@@ -66,8 +67,13 @@ def tweet_world():
     sum_deaths = math.trunc(df_deaths_lastd.sum(axis=1).values[0])
     new_deaths = math.trunc(df_deaths_diff_lastd.sum(axis=1).values[0])
     
+    new_cases_string = f"{new_cases:,d}".replace(',', ' ')
+    sum_cases_string = f"{sum_cases:,d}".replace(',', ' ')
+    new_deaths_string = f"{new_deaths:,d}".replace(',', ' ')
+    sum_deaths_string = f"{sum_deaths:,d}".replace(',', ' ')
+    
     # Write and publish tweet
-    tweet ="Données du #Covid19 dans le monde au {} :\n+ {} cas en 24h, soit {} au total\n+ {} décès en 24h, soit {} au total\n➡️ Plus d'infos : covidtracker.fr/covidtracker-world\n".format(date_str, f"{new_cases:,d}".replace(',', ' '), f"{sum_cases:,d}".replace(',', ' '), f"{new_deaths:,d}".replace(',', ' '), f"{sum_deaths:,d}".replace(',', ' ')) # toDo 
+    tweet ="Données du #Covid19 dans le monde au {} :\n+ {} cas en 24h, soit {} au total\n+ {} décès en 24h, soit {} au total\n➡️ Plus d'infos : covidtracker.fr/covidtracker-world\n".format(date_str, new_cases_string, sum_cases_string, new_deaths_string, sum_deaths_string) # toDo 
     #image_path ="images/charts/cases_world.jpeg"
     
     images_path =["images/charts/cases_world.jpeg", "images/charts/deaths_world.jpeg"]
@@ -81,5 +87,41 @@ def tweet_world():
     api.update_status(status=tweet, media_ids=media_ids)
     #print(tweet)
     
-tweet_world()
+    return date_str, new_cases_string, sum_cases_string, new_deaths_string, sum_deaths_string 
+    
+date_str, new_cases_string, sum_cases_string, new_deaths_string, sum_deaths_string  = tweet_world()
+
+
+# In[10]:
+
+
+PATH = "data/stats/"
+
+def traitement_val(valeur, plus_sign=False):
+    if int(valeur)<0:
+        valeur = "--"
+        
+
+        
+    if len(valeur)>3:
+        valeur = valeur[:len(valeur)-3] + " " + valeur[-3:]
+
+    return valeur
+
+data_json = {}
+for val, name in [(new_cases_string, "new_cases"), (sum_cases_string, "sum_cases"), (new_deaths_string, "new_deaths"), (sum_deaths_string, "sum_deaths")]:
+    
+    dict_json = {}
+    dict_json["date"] = date_str
+    
+    dict_json["valeur"] = val
+    
+    if (int(val.replace(" ", "")) > 0) & ("new" in name):
+        dict_json["valeur"] = "+ " + dict_json["valeur"]
+    
+    data_json[name] = dict_json
+    
+    
+with open(PATH + 'stats.json', 'w') as outfile:
+    json.dump(data_json, outfile)
 

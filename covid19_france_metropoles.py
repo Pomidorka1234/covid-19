@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[71]:
+# In[60]:
 
 
 """
@@ -21,11 +21,12 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[72]:
+# In[61]:
 
 
 from multiprocessing import Pool
 import requests
+import cv2
 import pandas as pd
 import math
 import plotly.graph_objects as go
@@ -45,7 +46,7 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 now = datetime.now()
 
 
-# In[6]:
+# In[62]:
 
 
 df_metro = data.import_data_metropoles()
@@ -53,28 +54,60 @@ df_metro_65 = df_metro[df_metro["clage_65"] == 65]
 df_metro_0 = df_metro[df_metro["clage_65"] == 0]
 
 
-# In[37]:
-
-
-list(dict.fromkeys(list(df_metro['Metropole'].values)))
-
-
-# In[55]:
+# In[63]:
 
 
 
+fig=go.Figure()
+
+metropoles = df_metro_0[df_metro_0["semaine_glissante"]==df_metro_0["semaine_glissante"].max()].sort_values(by=["ti"], ascending=False)["Metropole"].values
+metropoles_couvre_feu = ["Paris", "Saint Etienne", "Grenoble", "Montpellier", "Rouen", "Toulouse", "Lille", "Lyon", "Marseille"]
+metropoles_couvre_feu_sorted = [m for m in metropoles if m in metropoles_couvre_feu]
+
+for i,metro in enumerate(metropoles_couvre_feu_sorted): #list(dict.fromkeys(list(df_metro['Metropole'].values))
+    
+    y=df_metro_0[df_metro_0["Metropole"]==metro]
+    
+    fig.add_trace(go.Scatter(
+            x = [d[-10:] for d in y["semaine_glissante"].values],
+            y = y["ti"],
+            name = str(i+1) + ".<b> " + metro + "</b>" + "<br> Incidence : " + str(math.trunc(y["ti"].values[-1])) + "",
+            line_width=5,
+            marker_size=10,
+            mode="markers+lines",
+            opacity=1))
+    fig.update_yaxes(range=[0, df_metro_0["ti"].max()])
+    
+    fig.update_layout(
+        
+        title={
+            'text': "<b>Taux d'incidence du Covid19 dans les métropoles [avec couvre-feu]<br></b>{}, nombre de cas sur 7 j. pour 100k. hab.".format("covidtracker.fr"),
+            'y':0.95,
+            'x':0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'},
+            titlefont = dict(
+                size=20),
+    )
+    
+    
+name_fig = "line_metropole_avec_couvre_feu"
+fig.write_image("images/charts/france/{}.jpeg".format(name_fig), scale=2, width=800, height=800)
+
+plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[70]:
+# In[64]:
 
 
-df_metro
+
 
 fig=go.Figure()
 
 metropoles = df_metro_0[df_metro_0["semaine_glissante"]==df_metro_0["semaine_glissante"].max()].sort_values(by=["ti"], ascending=False)["Metropole"].values
 
-for i,metro in enumerate(metropoles): #list(dict.fromkeys(list(df_metro['Metropole'].values))
+for i,metro in enumerate([m for m in metropoles if m not in metropoles_couvre_feu]): #list(dict.fromkeys(list(df_metro['Metropole'].values))
+    
     y=df_metro_0[df_metro_0["Metropole"]==metro]
     
     fig.add_trace(go.Scatter(
@@ -86,11 +119,13 @@ for i,metro in enumerate(metropoles): #list(dict.fromkeys(list(df_metro['Metropo
             mode="markers+lines",
             opacity=1))
     
+    fig.update_yaxes(range=[0, df_metro_0["ti"].max()])
+    
     fig.update_layout(
         
         title={
-            'text': "<b>Taux d'incidence du Covid19 dans les 22 métropoles<br></b>{}, nombre de cas sur 7 j. pour 100k. hab.".format("covidtracker.fr"),
-            'y':0.97,
+            'text': "<b>Taux d'incidence du Covid19 dans les métropoles <b>[sans couvre-feu]</b><br></b>{}, nombre de cas sur 7 j. pour 100k. hab.".format("covidtracker.fr"),
+            'y':0.95,
             'x':0.5,
             'xanchor': 'center',
             'yanchor': 'top'},
@@ -99,13 +134,24 @@ for i,metro in enumerate(metropoles): #list(dict.fromkeys(list(df_metro['Metropo
     )
     
     
-name_fig = "line_metropoles"
-fig.write_image("images/charts/france/{}.jpeg".format(name_fig), scale=2, width=1000, height=1000)
+name_fig = "line_metropoles_sans_couvre_feu"
+fig.write_image("images/charts/france/{}.jpeg".format(name_fig), scale=2, width=800, height=800)
 
 plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[49]:
+# In[65]:
+
+
+im1 = cv2.imread('images/charts/france/line_metropole_avec_couvre_feu.jpeg')
+im2 = cv2.imread('images/charts/france/line_metropoles_sans_couvre_feu.jpeg')
+
+im3 = cv2.hconcat([im1, im2])
+
+cv2.imwrite('images/charts/france/line_metropoles_comp_couvre_feu.jpeg', im3)
+
+
+# In[66]:
 
 
 for (title, df_temp, name) in [("Tous âges", df_metro_0, "0"), ("> 65 ans", df_metro_65, "65")]:

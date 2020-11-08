@@ -21,7 +21,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[1]:
 
 
 import france_data_management as data
@@ -38,7 +38,7 @@ import os
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
 
-# In[3]:
+# In[2]:
 
 
 # Import data from Santé publique France
@@ -49,7 +49,7 @@ with open('data/france/dep.geojson') as response:
     depa = json.load(response)
 
 
-# In[4]:
+# In[55]:
 
 
 def build_map(data_df, img_folder, date_val, date_str = "date", dep_str = "departement", color_str = 'indic_synthese', legend_title="legend_title", title="title", subtitle="", subsubtitle="{}<br>{} (données du {})", color_descrete_map={"Risque Faible":"#DAF7A6", "Alerte":"#b8002a", "Alerte Renforcée":"#7c0030", "Alerte Maximale":"#460d37"}):
@@ -81,6 +81,7 @@ def build_map(data_df, img_folder, date_val, date_str = "date", dep_str = "depar
                     'text': title,
                     'y':0.98,
                     'x':0.5,
+                    'font': {'size': 30},
                     'xanchor': 'center',
                     'yanchor': 'top'},
 
@@ -94,7 +95,7 @@ def build_map(data_df, img_folder, date_val, date_str = "date", dep_str = "depar
                         xref='paper',
                         yref='paper',
                         xanchor = 'center',
-                        text='Source : Santé publique France. Auteur : @guillaumerozier.',
+                        text='Source : Santé publique France. Auteur : @guillaumerozier - covidtracker.fr',
                         showarrow = False
                     ),
 
@@ -102,29 +103,29 @@ def build_map(data_df, img_folder, date_val, date_str = "date", dep_str = "depar
                         x=0.55,
                         y=0.94,
                         xref='paper',
-                        yref='paper',
+                        yref='paper', 
                         text= subsubtitle.format(subtitle, date_now, date_title),
                         showarrow = False,
                         font=dict(
-                            size=20
+                            size=15
                                 )
                     )]
                  ) 
 
             fig.update_geos(
                 #center=dict(lon=-30, lat=-30),
-                projection_rotation=dict(lon=12, lat=30, roll=8),
+                projection_rotation=dict(lon=12, lat=32, roll=8),
                 #lataxis_range=[-50,20], lonaxis_range=[0, 200]
             )
-            #fig.show()
+
             if date == dates_deconf[-1]:
-                fig.write_image((img_folder+"/{}.jpeg").format("latest"), scale=2, width=960, height=640)
-            fig.write_image((img_folder+"/{}.jpeg").format(date), scale=2, width=960, height=640)
+                fig.write_image((img_folder+"/{}.jpeg").format("latest"), scale=1, width=1200, height=700)
+            fig.write_image((img_folder+"/{}.jpeg").format(date), scale=1, width=1200, height=700)
         else:
             print("no data")
 
 
-# In[5]:
+# In[56]:
 
 
 def build_gif(file_gif, imgs_folder, dates):
@@ -143,52 +144,42 @@ def build_gif(file_gif, imgs_folder, dates):
                 print("no image for "+str(date))
 
 
-# In[6]:
+# In[58]:
 
 
 dates_deconf = list(dict.fromkeys(list(df_incid["jour"].values)))
 
-date = [dates_deconf[-1]]
+date = [dates_deconf[-1]] #dates_deconf[-33:]
 build_map(df_incid.sort_values(by=['incidence']), "images/charts/france/dep-map-incid-cat", date_val=date, date_str = "jour", dep_str = "dep", color_str = 'incidence_color', legend_title="", title="Incidence", subtitle="Nombre de cas hebdomadaires pour 100 000 habitants")
 
 
 # In[7]:
 
 
-df_incid #df_incid.loc[:,"color_couvre_feu"] = 
+"""df_incid #df_incid.loc[:,"color_couvre_feu"] = 
 deps_couvre_feu = ["01", "05", "06", "07", "08", "09", "10", "12", "13", "14", "67", "2A", "2B", "21", "26", "30", "31", "34", "35", "37", "38", "39", "42", "43", "45", "48", "49", "51", "54", "59", "60","62", "63", "64", "65", "66","67", "69", "71", "73","74", "75", "76", "77", "78", "81", "82", "83", "84", "87", "91", "92", "93", "94", "95"]
 df_incid.loc[:,"color_couvre_feu"] = ['Couvre-feu' if dep in deps_couvre_feu else 'Pas de couvre-feu' for dep in df_incid['dep']]
 
 dates_deconf = list(dict.fromkeys(list(df_incid["jour"].values)))
 date = [dates_deconf[-1]]
-build_map(df_incid.sort_values(by=['incidence']), "images/charts/france/dep-map-couvre-feu", date_val=date, date_str = "jour", dep_str = "dep", color_str = 'color_couvre_feu', legend_title="", title="Départements possiblement en couvre feu samedi", subsubtitle="", color_descrete_map={"Pas de couvre-feu":"#a4bda8", "Couvre-feu":"#bd2828"})
-
-
-# In[8]:
-
-
-deps_strings=[]
-for dep in deps_couvre_feu:
-    deps_strings += [df_incid[df_incid["dep"] == dep]["departmentName"].values[0]]
+build_map(df_incid.sort_values(by=['incidence']), "images/charts/france/dep-map-couvre-feu", date_val=date, date_str = "jour", dep_str = "dep", color_str = 'color_couvre_feu', legend_title="", title="Départements possiblement en couvre feu samedi", subsubtitle="", color_descrete_map={"Pas de couvre-feu":"#a4bda8", "Couvre-feu":"#bd2828"})"""
 
 
 # In[9]:
 
 
+"""deps_strings=[]
+for dep in deps_couvre_feu:
+    deps_strings += [df_incid[df_incid["dep"] == dep]["departmentName"].values[0]]
+    
 to_disp=""
 for val in deps_strings:
     to_disp += val+", "
-to_disp
+to_disp"""
 
 
-# In[10]:
+# In[59]:
 
 
-#df_incid.loc[df_incid["dep"] == "75"]["P"].rolling(window=7).sum()/df_incid.loc[df_incid["dep"] == "75"]["pop"]*100000
-
-
-# In[11]:
-
-
-build_gif("images/charts/france/incid-cat.gif", "images/charts/france/dep-map-incid-cat", dates_deconf[-30:])
+build_gif("images/charts/france/incid-cat.gif", "images/charts/france/dep-map-incid-cat", dates_deconf[-33:])
 
