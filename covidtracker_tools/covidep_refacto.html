@@ -49,6 +49,8 @@
      border-radius: 5px;
 
   }
+
+  /* VALUE OF PROGRESSBAR */
   progress[type=green]::-webkit-progress-value{ /* Safari/Chrome */
       background:red;
       background-color: green;
@@ -74,6 +76,7 @@
       border-radius: 5px;
   }
 
+  /* REMAINING OF PROGRESSBAR */
   progress[type=green]::-webkit-progress-bar { /* Safari/Chrome */
       background:red;
       background-color: rgba(0, 0, 0, 0); /*#c3d9c4;*/
@@ -98,6 +101,8 @@
       background-color: rgba(0, 0, 0, 0); /*#e3c6c3;*/
       border-radius: 5px;
   }
+
+  /* FIREFOX */
   progress::-moz-progress-bar {  /* Firefox */
       background: red;  
       border-radius: 5px;
@@ -405,21 +410,24 @@
 
       dep_string = "<span style=\"margin-bottom: -10px; margin-top: 2px; display: inline-block;\"><b>" + dep.substr(0, nb_caract) + dot + "&nbsp;(" + numeros_deps[dep] + ")</b></span><br>"
 
-      progress_wave_1 = "<div class=\"box-perso\"><div style='width: 80%; padding 10px; vertical-align: middle;'><progress style='margin-bottom: -10px !important;' type='greenv1' id='avancement' value='{{value}}' max='{{max}}'></progress>"
+      progress_bar_wave_1 = "<div class=\"box-perso\"><div style='width: 80%; padding 10px; vertical-align: middle;'><progress style='margin-bottom: -10px !important;' type='greenv1' id='avancement' value='{{value}}' max='{{max}}'></progress>"
         .replace("{{value}}", nb_hosp_dep[dep]["hosp_max_premiere_vague"])
         .replace("{{max}}", nb_hosp_dep[dep]["hosp_actuellement"])
 
-      progress_wave_2 = "<progress style='margin-top: 0px !important;' type='green' id='avancement' value='{{value}}' max='{{max}}'></progress></div>"
+      progress_bar_wave_2 = "<progress style='margin-top: 0px !important;' type='green' id='avancement' value='{{value}}' max='{{max}}'></progress></div>"
         .replace("{{value}}", nb_hosp_dep[dep]["hosp_actuellement"])
         .replace("{{max}}", nb_hosp_dep[dep]["hosp_max_premiere_vague"])
       
       text_evolution = "<div style='vertical-align: bottom;'><span style='font-size: 70%; color: green;'><br>{{text}}&nbsp;%</span></div></div>"
         .replace("{{text}}", calculerTauxEvolution(dep))
 
-      html_deps_avant_vague += ("<button type='button_dep' id=\"{{dep}}\" onclick=\"buttonHasChanged('{{dep_func}}', 'false')\"{{dep_string}}" + progress_wave_1 + progress_wave_2 + text_evolution + "</button>")
+      html_deps_avant_vague += "<button type='button_dep' id=\"{{dep}}\" onclick=\"buttonHasChanged('{{dep_func}}', 'false')\"{{dep_string}} {{html_wave_1_html}} {{html_wave_2_html}} {{text_evol_html}} </button>"
         .replace("{{dep}}", replaceBadCharacters(dep))
         .replace("{{dep_func}}", dep.replace("'", "\\'"))
         .replace("{{dep_string}}", dep_string)
+        .replace("{{html_wave_1_html}}", progress_bar_wave_1)
+        .replace("{{html_wave_2_html}}", progress_bar_wave_2)
+        .replace("{{text_evol_html}}", text_evolution)
 
 
     })
