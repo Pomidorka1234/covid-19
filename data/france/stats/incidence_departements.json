@@ -1,0 +1,1 @@
+{"liste_departements": ["Savoie"], "donnees_france": {"max": {"incidence_cas": 200, "incidence_hosp": 250, "incidence_dc": 300}, "moyenne": {"incidence_cas": 100, "incidence_hosp": 150, "incidence_dc": 250}, "donnees_departements": {"Savoie": {"incidence_cas": 120, "incidence_hosp": 210, "incidence_dc": 280}}}}
