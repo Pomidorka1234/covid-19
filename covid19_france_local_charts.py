@@ -41,6 +41,17 @@ except:
 
 
 df, df_confirmed, dates, df_new, df_tests, _, df_sursaud, df_incid, df_tests_viro = data.import_data()
+
+
+# In[4]:
+
+
+df_new
+
+
+# In[3]:
+
+
 df_incid_all = df_incid
 
 df_incid = df_incid[df_incid["cl_age90"] == 0]

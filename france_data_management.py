@@ -186,6 +186,7 @@ def import_data():
     df_tests_viro["pop"] = pop_df_incid
     
     df = df.groupby(["dep", "jour"]).first().reset_index()
+    df_new = df_new.groupby(["dep", "jour"]).first().reset_index()
     
     return df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viro
 

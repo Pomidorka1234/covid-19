@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[8]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[9]:
 
 
 from multiprocessing import Pool
@@ -48,13 +48,13 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 now = datetime.now()
 
 
-# In[3]:
+# In[10]:
 
 
 df, df_confirmed, dates, _, _, _, _, _, df_tests_viros = data.import_data()
 
 
-# In[4]:
+# In[11]:
 
 
 deps_tests = list(dict.fromkeys(list(df_tests_viros['dep'].values))) 
@@ -170,7 +170,7 @@ for (name, data, title, scale_txt, data_example, digits) in [("cas", '', "Taux d
         plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[5]:
+# In[12]:
 
 
 """OLD
@@ -298,7 +298,7 @@ for (name, data, title, scale_txt, data_example, digits) in [("taux", 'P_taux', 
         plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)"""
 
 
-# In[6]:
+# In[13]:
 
 
 """string= ""
@@ -307,7 +307,7 @@ for dep in deps_tests:
 print(string)"""
 
 
-# In[7]:
+# In[14]:
 
 
 """for (name, data, title, scale_txt, data_example, digits) in [("taux_reg", 'P_taux', "Taux de<br>positivité", "%", "%", 1)]:

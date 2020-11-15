@@ -45,7 +45,7 @@ df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_t
 # In[53]:
 
 
-df = df.groupby(["dep", "jour"]).first().reset_index()
+#df = df.groupby(["dep", "jour"]).first().reset_index()
 
 
 # In[54]:
@@ -796,14 +796,14 @@ for dep in departements:
     os.remove('images/charts/france/departements_dashboards/dc_journ_{}.jpeg'.format(dep))
 
 
-# In[ ]:
+# In[63]:
 
 
 for dep in departements:
     saturation_rea_journ(dep)
 
 
-# In[ ]:
+# In[64]:
 
 
 """for idx,dep in enumerate(departements):
@@ -819,7 +819,7 @@ for dep in departements:
 """
 
 
-# In[ ]:
+# In[65]:
 
 
 """#print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")

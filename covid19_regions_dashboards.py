@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[42]:
+# In[56]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[43]:
+# In[57]:
 
 
 import pandas as pd
@@ -36,13 +36,13 @@ import math
 import os
 
 
-# In[44]:
+# In[58]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[45]:
+# In[59]:
 
 
 df_regions = df.groupby(["jour", "regionName"]).sum().reset_index()
@@ -54,13 +54,13 @@ last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).
 df_new_regions = df_new.groupby(["jour", "regionName"]).sum().reset_index()
 
 
-# In[46]:
+# In[60]:
 
 
 lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
 
 
-# In[47]:
+# In[61]:
 
 
 regions_deps = df.groupby(["departmentName", "regionName"]).sum().reset_index().loc[:,["departmentName", "regionName"]]
@@ -69,7 +69,7 @@ lits_reas_regs = lits_reas.groupby(["regionName"]).sum().reset_index()
 df_regions = df_regions.merge(lits_reas_regs, left_on="regionName", right_on="regionName")
 
 
-# In[48]:
+# In[62]:
 
 
 def cas_journ(region):
@@ -184,7 +184,7 @@ def cas_journ(region):
     print("> " + name_fig)
 
 
-# In[49]:
+# In[63]:
 
 
 def hosp_journ(region):   
@@ -286,7 +286,7 @@ def hosp_journ(region):
     print("> " + name_fig)
 
 
-# In[50]:
+# In[64]:
 
 
 def rea_journ(region):
@@ -388,7 +388,7 @@ def rea_journ(region):
 #rea_journ("Auvergne-Rhône-Alpes")
 
 
-# In[51]:
+# In[65]:
 
 
 def dc_journ(region): 
@@ -502,7 +502,7 @@ def dc_journ(region):
     print("> " + name_fig)
 
 
-# In[52]:
+# In[66]:
 
 
 
@@ -594,7 +594,7 @@ def saturation_rea_journ(region):
     print("> " + name_fig)
 
 
-# In[53]:
+# In[67]:
 
 
 import cv2
@@ -625,7 +625,7 @@ for reg in regions:
     os.remove('images/charts/france/regions_dashboards/dc_journ_{}.jpeg'.format(reg))
 
 
-# In[54]:
+# In[68]:
 
 
 """for reg in regions:
@@ -640,7 +640,7 @@ for reg in regions:
 """
 
 
-# In[55]:
+# In[69]:
 
 
 """print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")

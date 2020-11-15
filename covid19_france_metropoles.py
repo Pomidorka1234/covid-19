@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[8]:
 
 
 """
@@ -21,7 +21,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[9]:
 
 
 from multiprocessing import Pool
@@ -46,7 +46,7 @@ locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 now = datetime.now()
 
 
-# In[3]:
+# In[10]:
 
 
 df_metro = data.import_data_metropoles()
@@ -54,7 +54,7 @@ df_metro_65 = df_metro[df_metro["clage_65"] == 65]
 df_metro_0 = df_metro[df_metro["clage_65"] == 0]
 
 
-# In[4]:
+# In[11]:
 
 
 
@@ -97,7 +97,7 @@ fig.write_image("images/charts/france/{}.jpeg".format(name_fig), scale=2, width=
 plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[5]:
+# In[12]:
 
 
 
@@ -140,7 +140,7 @@ fig.write_image("images/charts/france/{}.jpeg".format(name_fig), scale=2, width=
 plotly.offline.plot(fig, filename = 'images/html_exports/france/{}.html'.format(name_fig), auto_open=False)
 
 
-# In[6]:
+# In[13]:
 
 
 im1 = cv2.imread('images/charts/france/line_metropole_avec_couvre_feu.jpeg')
@@ -151,7 +151,7 @@ im3 = cv2.hconcat([im1, im2])
 cv2.imwrite('images/charts/france/line_metropoles_comp_couvre_feu.jpeg', im3)
 
 
-# In[7]:
+# In[14]:
 
 
 for (title, df_temp, name) in [("Tous âges", df_metro_0, "0"), ("> 65 ans", df_metro_65, "65")]:
