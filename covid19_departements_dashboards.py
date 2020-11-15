@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+# In[30]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[3]:
+# In[45]:
 
 
 import pandas as pd
@@ -36,17 +36,25 @@ import math
 import os
 
 
-# In[4]:
+# In[46]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[5]:
+# In[53]:
+
+
+df = df.groupby(["dep", "jour"]).first().reset_index()
+
+
+# In[54]:
 
 
 df_departements = df.groupby(["jour", "departmentName"]).sum().reset_index()
 df_incid_departements = df_incid[df_incid["cl_age90"]==0].groupby(["jour", "departmentName"]).sum().reset_index()
+
+df_new_departements = df_new.groupby(["jour", "departmentName"]).sum().reset_index()
 
 departements = list(dict.fromkeys(list(df_departements['departmentName'].values))) 
 
@@ -56,7 +64,7 @@ last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).
 departements_nb = list(dict.fromkeys(list(df_tests_viros['dep'].values))) 
 
 
-# In[6]:
+# In[55]:
 
 
 lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
@@ -64,7 +72,7 @@ lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
 df_departements_lits = df_departements.merge(lits_reas, left_on="departmentName", right_on="nom_dpt")
 
 
-# In[ ]:
+# In[56]:
 
 
 def cas_journ(departement):
@@ -73,7 +81,7 @@ def cas_journ(departement):
     df_incid_dep_rolling = df_incid_dep["P"].rolling(window=7, center=True).mean()
     
     range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "cas_journ_"+departement, [0, df_incid_dep["P"].max()]
-    title = "<b>Cas positifs</b> au Covid19 - " + departement
+    title = "<b>Cas positifs</b> au Covid19 - <b>" + departement + "</b>"
 
     fig = go.Figure()
 
@@ -142,10 +150,11 @@ def cas_journ(departement):
         annotations = [
                     dict(
                         x=0,
-                        y=1,
+                        y=1.07,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=14),
+                        text='{}. Données : Santé publique France. Auteur : <b>@GuillaumeRozier - covidtracker.fr.</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -174,12 +183,12 @@ def cas_journ(departement):
             showarrow=True
         ),)
 
-    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=0.9, width=750, height=500)
+    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=1.5, width=750, height=500)
 
     print("> " + name_fig)
 
 
-# In[ ]:
+# In[57]:
 
 
 def hosp_journ(departement):   
@@ -187,7 +196,7 @@ def hosp_journ(departement):
     #df_incid_reg_rolling = df_incid_reg["P"].rolling(window=7, center=True).mean()
     
     range_x, name_fig = ["2020-03-29", last_day_plot], "hosp_journ_"+departement
-    title = "<b>Personnes hospitalisées</b> pour Covid19 - " + departement
+    title = "Personnes <b>hospitalisées</b> pour Covid19 - <b>" + departement +"</b>"
 
     fig = go.Figure()
 
@@ -244,10 +253,11 @@ def hosp_journ(departement):
         annotations = [
                     dict(
                         x=0,
-                        y=1,
+                        y=1.07,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=14),
+                        text='{}. Données : Santé publique France. Auteur : <b>@GuillaumeRozier - covidtracker.fr.</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -276,19 +286,181 @@ def hosp_journ(departement):
             showarrow=True
         ),)
 
-    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=0.9, width=750, height=500)
+    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=1.5, width=750, height=500)
 
     print("> " + name_fig)
 
 
-# In[ ]:
+# In[58]:
+
+
+def hosp_comparaison_vagues(departement):   
+    df_dep = df_departements[df_departements["departmentName"] == departement]
+    #df_incid_reg_rolling = df_incid_reg["P"].rolling(window=7, center=True).mean()
+    
+    range_x, name_fig = ["2020-03-29", last_day_plot], "hosp_comp_vagues_"+departement
+    title = ""#"<b>Personnes hospitalisées</b> pour Covid19 - " + departement
+
+    fig = go.Figure()
+    
+    premiere_vague = df_dep[ df_dep["jour"] < "2020-08"]["hosp"].max()
+    premiere_vague_date = df_dep[ df_dep["hosp"] == premiere_vague]["jour"].min()
+    
+    deuxieme_vague = df_dep[ df_dep["jour"] > "2020-09"]["hosp"].max()
+    deuxieme_vague_date = df_dep[ (df_dep["hosp"] == deuxieme_vague) & (df_dep["jour"] > "2020-09")]["jour"].min()
+    
+    color_deuxieme_vague = "green"
+    if deuxieme_vague > premiere_vague:
+        color_deuxieme_vague = "red"
+    
+    hosp_values = df_dep["hosp"].values
+    trace_to_add = [max(0, hosp - premiere_vague) for hosp in hosp_values]
+    
+    
+    #deuxieme_vague += [df_dep[ df_dep["jour"] > "2020-09"]["hosp"].max()]
+    color = ["red" if hosp > premiere_vague else "rgb(209, 102, 21)" for hosp in df_dep["hosp"].values]
+    fig.add_trace(go.Bar(
+        x = df_dep["jour"],
+        y = df_dep["hosp"].values - trace_to_add,
+        name = "Nouveaux décès hosp.",
+        marker_color="orange",
+        #line_width=8,
+        opacity=0.8,
+        #fill='tozeroy',
+        #fillcolor="rgba(209, 102, 21,0.3)",
+        showlegend=False
+    ))
+    
+    fig.add_trace(go.Bar(
+        x = df_dep["jour"],
+        y = trace_to_add,
+        name = "Nouveaux décès hosp.",
+        marker_color="red",
+        #line_width=8,
+        opacity=0.8,
+        #fill='tozeroy',
+        #fillcolor="rgba(209, 102, 21,0.3)",
+        showlegend=False
+    ))
+    
+    fig.add_shape(
+            type="line",
+            x0="2000-01-01",
+            y0=premiere_vague,
+            x1="2030-01-01",
+            y1=premiere_vague,
+            opacity=1,
+            #fillcolor="orange",
+            line=dict(
+                dash="dash",
+                color="black",
+                width=1,
+            )
+        )
+
+    ###
+
+    fig.update_yaxes(zerolinecolor='Grey', tickfont=dict(size=18))
+    fig.update_xaxes(nticks=10, ticks='inside', tickangle=0, tickfont=dict(size=18),  range=["2020-03-15", last_day_plot])
+
+    # Here we modify the tickangle of the xaxis, resulting in rotated labels.
+    fig.update_layout(
+        paper_bgcolor='rgba(255,255,255,1)',
+        plot_bgcolor='rgba(255,255,255,1)',
+        bargap=0,
+        margin=dict(
+                l=50,
+                r=0,
+                b=50,
+                t=70,
+                pad=0
+            ),
+        legend_orientation="h",
+        barmode='stack',
+        title={
+                    'text': title,
+                    'y':0.95,
+                    'x':0.5,
+                    'xanchor': 'center',
+                    'yanchor': 'top'},
+                    titlefont = dict(
+                    size=20),
+        xaxis=dict(
+                title='',
+                tickformat='%d/%m'),
+
+        annotations = [
+                    dict(
+                        x=0,
+                        y=-0.08,
+                        xref='paper',
+                        yref='paper',
+                        text="Date : {}. Source : Santé publique France. Auteur : Guillaume Rozier - covidtracker.fr - nombre d'hospitalisations".format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                    ),
+                    ]
+                     )
+
+    fig['layout']['annotations'] += (dict(
+            x = deuxieme_vague_date, y = deuxieme_vague, # annotation point
+            xref='x1', 
+            yref='y1',
+            text="Deuxième vague",
+            xshift=-5,
+            yshift=10,
+            xanchor="center",
+            align='center',
+            font=dict(
+                color=color_deuxieme_vague,
+                size=20
+                ),
+            bgcolor="rgba(255, 255, 255, 0.6)",
+            opacity=0.8,
+            ax=-150,
+            ay=-50,
+            arrowcolor=color_deuxieme_vague,
+            arrowsize=1.5,
+            arrowwidth=1,
+            arrowhead=0,
+            showarrow=True
+        ),dict(
+            x = premiere_vague_date, y = premiere_vague, # annotation point
+            xref='x1', 
+            yref='y1',
+            text="Première vague",
+            xshift=0,
+            yshift=10,
+            xanchor="center",
+            align='center',
+            font=dict(
+                color="black",
+                size=20
+                ),
+            bgcolor="rgba(255, 255, 255, 0.6)",
+            opacity=0.8,
+            ax=0,
+            ay=-50,
+            arrowcolor="black",
+            arrowsize=1.5,
+            arrowwidth=1,
+            arrowhead=0,
+            showarrow=True
+        ))
+
+    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=1.5, width=1000, height=700)
+
+    print("> " + name_fig)
+    
+#hosp_comparaison_vagues("Savoie")
+
+
+# In[59]:
 
 
 def rea_journ(departement):
     df_dep = df_departements[df_departements["departmentName"] == departement]
     
     range_x, name_fig = ["2020-03-29", last_day_plot], "rea_journ_" + departement
-    title = "<b>Personnes en réanimation</b> pour Covid19 - " + departement
+    title = "Personnes en <b>réanimation</b> pour Covid19 - <b>" + departement + "</b>"
 
     fig = go.Figure()
 
@@ -323,7 +495,7 @@ def rea_journ(departement):
     fig.update_layout(
         margin=dict(
                 l=50,
-                r=0,
+                r=10,
                 b=50,
                 t=70,
                 pad=0
@@ -345,10 +517,11 @@ def rea_journ(departement):
         annotations = [
                     dict(
                         x=0,
-                        y=1,
+                        y=1.07,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=14),
+                        text='{}. Données : Santé publique France. Auteur : <b>@GuillaumeRozier - covidtracker.fr.</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -377,20 +550,22 @@ def rea_journ(departement):
             showarrow=True
         ),)
 
-    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=0.9, width=750, height=500)
+    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=1.5, width=750, height=500)
 
     print("> " + name_fig)
+    
+#rea_journ("Isère")
 
 
-# In[ ]:
+# In[60]:
 
 
 def dc_journ(departement): 
-    df_dep = df_departements[df_departements["departmentName"] == departement]
-    dc_new_rolling = df_dep["dc_new"].rolling(window=7).mean()
+    df_dep = df_new_departements[df_new_departements["departmentName"] == departement]
+    dc_new_rolling = df_dep["incid_dc"].rolling(window=7).mean()
     
-    range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ_"+departement, [0, df_dep["dc_new"].max()]
-    title = "<b>Décès hospitaliers quotidiens</b> du Covid19 - " + departement
+    range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ_"+departement, [0, df_dep["incid_dc"].max()]
+    title = "Décès <b>hospitaliers quotidiens</b> du Covid19 - <b>" + departement + "</b>"
 
     fig = go.Figure()
     
@@ -419,7 +594,7 @@ def dc_journ(departement):
     #
     fig.add_trace(go.Scatter(
         x = df_dep["jour"],
-        y = df_dep["dc_new"],
+        y = df_dep["incid_dc"],
         name = "Nouveaux décès hosp.",
         mode="markers",
         marker_color='black',
@@ -459,10 +634,11 @@ def dc_journ(departement):
         annotations = [
                     dict(
                         x=0,
-                        y=1,
+                        y=1.07,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                         font=dict(size=14),
+                        text='{}. Données : Santé publique France. Auteur : <b>@GuillaumeRozier - covidtracker.fr.</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -491,12 +667,14 @@ def dc_journ(departement):
             showarrow=True
         ),)
 
-    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=0.9, width=750, height=500)
+    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=1.5, width=750, height=500)
 
     print("> " + name_fig)
+    
+#dc_journ("Paris")
 
 
-# In[ ]:
+# In[61]:
 
 
 
@@ -582,12 +760,12 @@ def saturation_rea_journ(dep):
             showarrow=True
         ),)
 
-    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=0.9, width=750, height=500)
+    fig.write_image("images/charts/france/departements_dashboards/{}.jpeg".format(name_fig), scale=1.5, width=750, height=500)
 
     print("> " + name_fig)
 
 
-# In[ ]:
+# In[62]:
 
 
 import cv2
@@ -597,6 +775,7 @@ for dep in departements:
     hosp_journ(dep)
     rea_journ(dep)
     dc_journ(dep)
+    hosp_comparaison_vagues(dep)
     saturation_rea_journ(dep)
     
     im1 = cv2.imread('images/charts/france/departements_dashboards/cas_journ_{}.jpeg'.format(dep))
@@ -612,7 +791,7 @@ for dep in departements:
     cv2.imwrite('images/charts/france/departements_dashboards/dashboard_jour_{}.jpeg'.format(dep), im_totale)
     
     os.remove('images/charts/france/departements_dashboards/cas_journ_{}.jpeg'.format(dep))
-    os.remove('images/charts/france/departements_dashboards/hosp_journ_{}.jpeg'.format(dep))
+    #os.remove('images/charts/france/departements_dashboards/hosp_journ_{}.jpeg'.format(dep))
     os.remove('images/charts/france/departements_dashboards/rea_journ_{}.jpeg'.format(dep))
     os.remove('images/charts/france/departements_dashboards/dc_journ_{}.jpeg'.format(dep))
 
@@ -624,10 +803,10 @@ for dep in departements:
     saturation_rea_journ(dep)
 
 
-# In[9]:
+# In[ ]:
 
 
-for idx,dep in enumerate(departements):
+"""for idx,dep in enumerate(departements):
     numero_dep = df[df["departmentName"] == dep]["dep"].values[-1]
     
     heading = "<!-- wp:heading --><h2 id=\"{}\">{}</h2><!-- /wp:heading -->\n".format(dep, dep + " (" + numero_dep + ")")
@@ -637,22 +816,19 @@ for idx,dep in enumerate(departements):
     space = "<!-- wp:spacer {\"height\":50} --><div style=\"height:50px\" aria-hidden=\"true\" class=\"wp-block-spacer\"></div><!-- /wp:spacer -->"
     retourmenu="<a href=\"#Menu\">Retour au menu</a>"
     print(space+retourmenu+heading+string+string2+string_saturation)
+"""
 
 
 # In[ ]:
 
 
-#print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")
+"""#print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")
 output = ""
 for dep in departements:
     numero_dep = df[df["departmentName"] == dep]["dep"].values[-1]
     output+= "<a href=\"#{}\">{} ({})</a> • ".format(dep, dep, numero_dep)
-    #print("""<!-- wp:button {"className":"is-style-outline"} -->
-    #<div class="wp-block-button is-style-outline">""")
-    #print("<a class=\"wp-block-button__link\" href=\"#{}\">".format(dep))
-    #print("{}</a></div><!-- /wp:button --></div>\n".format(dep + " (" + numero_dep + ")"))
-print(output[:-2])
-    
-    
+#print(output[:-2])
+
+"""
 #print("<!-- /wp:buttons -->")
 

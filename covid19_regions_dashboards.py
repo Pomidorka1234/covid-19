@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[42]:
 
 
 """
@@ -23,7 +23,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[43]:
 
 
 import pandas as pd
@@ -36,13 +36,13 @@ import math
 import os
 
 
-# In[3]:
+# In[44]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[4]:
+# In[45]:
 
 
 df_regions = df.groupby(["jour", "regionName"]).sum().reset_index()
@@ -51,14 +51,16 @@ regions = list(dict.fromkeys(list(df_regions['regionName'].values)))
 dates_incid = list(dict.fromkeys(list(df_incid['jour'].values))) 
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
 
+df_new_regions = df_new.groupby(["jour", "regionName"]).sum().reset_index()
 
-# In[5]:
+
+# In[46]:
 
 
 lits_reas = pd.read_csv('data/france/lits_rea.csv', sep=",")
 
 
-# In[6]:
+# In[47]:
 
 
 regions_deps = df.groupby(["departmentName", "regionName"]).sum().reset_index().loc[:,["departmentName", "regionName"]]
@@ -67,7 +69,7 @@ lits_reas_regs = lits_reas.groupby(["regionName"]).sum().reset_index()
 df_regions = df_regions.merge(lits_reas_regs, left_on="regionName", right_on="regionName")
 
 
-# In[ ]:
+# In[48]:
 
 
 def cas_journ(region):
@@ -76,7 +78,7 @@ def cas_journ(region):
     df_incid_reg_rolling = df_incid_reg["P"].rolling(window=7, center=True).mean()
     
     range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "cas_journ_"+region, [0, df_incid_reg["P"].max()]
-    title = "<b>Cas positifs</b> au Covid19 - " + region
+    title = "<b>Cas positifs</b> au Covid19 - <b>" + region + "</b>"
 
     fig = go.Figure()
 
@@ -132,7 +134,7 @@ def cas_journ(region):
         barmode='group',
         title={
                     'text': title,
-                    'y':0.95,
+                    'y':0.93,
                     'x':0.5,
                     'xanchor': 'center',
                     'yanchor': 'top'},
@@ -148,7 +150,8 @@ def cas_journ(region):
                         y=1,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=15),
+                        text='{}. Données : Santé publique France. <b>@GuillaumeRozier - covidtracker.fr</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -181,7 +184,7 @@ def cas_journ(region):
     print("> " + name_fig)
 
 
-# In[ ]:
+# In[49]:
 
 
 def hosp_journ(region):   
@@ -189,7 +192,7 @@ def hosp_journ(region):
     #df_incid_reg_rolling = df_incid_reg["P"].rolling(window=7, center=True).mean()
     
     range_x, name_fig = ["2020-03-29", last_day_plot], "hosp_journ_"+region
-    title = "<b>Personnes hospitalisées</b> pour Covid19 - " + region
+    title = "<b>Personnes hospitalisées</b> pour Covid19 - <b>" + region + "</b>"
 
     fig = go.Figure()
 
@@ -233,7 +236,7 @@ def hosp_journ(region):
         barmode='group',
         title={
                     'text': title,
-                    'y':0.95,
+                    'y':0.93,
                     'x':0.5,
                     'xanchor': 'center',
                     'yanchor': 'top'},
@@ -249,7 +252,8 @@ def hosp_journ(region):
                         y=1,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=15),
+                        text='{}. Données : Santé publique France. <b>@GuillaumeRozier - covidtracker.fr</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -282,14 +286,14 @@ def hosp_journ(region):
     print("> " + name_fig)
 
 
-# In[ ]:
+# In[50]:
 
 
 def rea_journ(region):
     df_reg = df_regions[df_regions["regionName"] == region]
     
     range_x, name_fig = ["2020-03-29", last_day_plot], "rea_journ_" + region
-    title = "<b>Personnes en réanimation</b> pour Covid19 - " + region
+    title = "Personnes en <b>réanimation</b> pour Covid19 - <b>" + region + "</b>"
 
     fig = go.Figure()
 
@@ -333,7 +337,7 @@ def rea_journ(region):
         barmode='group',
         title={
                     'text': title,
-                    'y':0.95,
+                    'y':0.93,
                     'x':0.5,
                     'xanchor': 'center',
                     'yanchor': 'top'},
@@ -349,7 +353,8 @@ def rea_journ(region):
                         y=1,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=15),
+                        text='{}. Données : Santé publique France. <b>@GuillaumeRozier - covidtracker.fr</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -380,17 +385,18 @@ def rea_journ(region):
     fig.write_image("images/charts/france/regions_dashboards/{}.jpeg".format(name_fig), scale=1, width=900, height=600)
 
     print("> " + name_fig)
+#rea_journ("Auvergne-Rhône-Alpes")
 
 
-# In[ ]:
+# In[51]:
 
 
 def dc_journ(region): 
-    df_reg = df_regions[df_regions["regionName"] == region]
-    dc_new_rolling = df_reg["dc_new"].rolling(window=7).mean()
+    df_reg = df_new_regions[df_new_regions["regionName"] == region]
+    dc_new_rolling = df_reg["incid_dc"].rolling(window=7).mean()
     
-    range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ_"+region, [0, df_reg["dc_new"].max()]
-    title = "<b>Décès hospitaliers quotidiens</b> du Covid19 - " + region
+    range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "dc_journ_"+region, [0, df_reg["incid_dc"].max()]
+    title = "<b>Décès hospitaliers quotidiens</b> du Covid19 - <b>" + region + "</b>"
 
     fig = go.Figure()
     
@@ -419,7 +425,7 @@ def dc_journ(region):
     #
     fig.add_trace(go.Scatter(
         x = df_reg["jour"],
-        y = df_reg["dc_new"],
+        y = df_reg["incid_dc"],
         name = "Nouveaux décès hosp.",
         mode="markers",
         marker_color='black',
@@ -446,7 +452,7 @@ def dc_journ(region):
         barmode='group',
         title={
                     'text': title,
-                    'y':0.95,
+                    'y':0.93,
                     'x':0.5,
                     'xanchor': 'center',
                     'yanchor': 'top'},
@@ -462,7 +468,8 @@ def dc_journ(region):
                         y=1,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : guillaumerozier.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=15),
+                        text='{}. Données : Santé publique France. <b>@GuillaumeRozier - covidtracker.fr</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -495,7 +502,7 @@ def dc_journ(region):
     print("> " + name_fig)
 
 
-# In[ ]:
+# In[52]:
 
 
 
@@ -504,7 +511,7 @@ def saturation_rea_journ(region):
     df_saturation = 100 * df_reg["rea"] / df_reg["LITS_y"]
     
     range_x, name_fig, range_y = ["2020-03-29", last_day_plot], "saturation_rea_journ_"+region, [0, df_saturation.max()]
-    title = "<b>Occupation des réa.</b> par les patients Covid19 - " + region
+    title = "<b>Occupation des réa.</b> par les patients Covid19 - <b>" + region + "</b>"
 
     fig = go.Figure()
 
@@ -537,7 +544,7 @@ def saturation_rea_journ(region):
         barmode='group',
         title={
                     'text': title,
-                    'y':0.95,
+                    'y':0.93,
                     'x':0.5,
                     'xanchor': 'center',
                     'yanchor': 'top'},
@@ -553,7 +560,8 @@ def saturation_rea_journ(region):
                         y=1,
                         xref='paper',
                         yref='paper',
-                        text='Date : {}. Source : Santé publique France. Auteur : @guillaumerozier - covidtracker.fr.'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                        font=dict(size=15),
+                        text='{}. Données : Santé publique France. <b>@GuillaumeRozier - covidtracker.fr</b>'.format(datetime.strptime(max(dates), '%Y-%m-%d').strftime('%d %b')),                    showarrow = False
                     ),
                     ]
                      )
@@ -586,7 +594,7 @@ def saturation_rea_journ(region):
     print("> " + name_fig)
 
 
-# In[ ]:
+# In[53]:
 
 
 import cv2
@@ -617,10 +625,10 @@ for reg in regions:
     os.remove('images/charts/france/regions_dashboards/dc_journ_{}.jpeg'.format(reg))
 
 
-# In[ ]:
+# In[54]:
 
 
-for reg in regions:
+"""for reg in regions:
     
     heading = "<!-- wp:heading --><h2 id=\"{}\">{}</h2><!-- /wp:heading -->\n".format(reg, reg)
     string = "<p align=\"center\"> <a href=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/regions_dashboards/dashboard_jour_{}.jpeg\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/regions_dashboards/dashboard_jour_{}.jpeg\" width=\"100%\"> </a></p><br>\n".format(reg, reg)
@@ -629,18 +637,19 @@ for reg in regions:
     space = "<!-- wp:spacer {\"height\":50} --><div style=\"height:50px\" aria-hidden=\"true\" class=\"wp-block-spacer\"></div><!-- /wp:spacer -->"
     retourmenu="<a href=\"#Menu\">Retour au menu</a>"
     print(space+retourmenu+heading+string+string2)
+"""
 
 
-# In[ ]:
+# In[55]:
 
 
-print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")
+"""print("<!-- wp:buttons --><div class=\"wp-block-buttons\">\n")
 for reg in regions:
-    print("""<!-- wp:button {"className":"is-style-outline"} -->
-    <div class="wp-block-button is-style-outline">""")
+    print("""#<!-- wp:button {"className":"is-style-outline"} -->
+    #<div class="wp-block-button is-style-outline">""")
     
     print("<a class=\"wp-block-button__link\" href=\"#{}\">".format(reg))
     
     print("{}</a></div><!-- /wp:button --></div>\n".format(reg))
-print("<!-- /wp:buttons -->")
+#print("<!-- /wp:buttons -->")"""
 
