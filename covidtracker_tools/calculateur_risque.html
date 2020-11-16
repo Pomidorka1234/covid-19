@@ -29,7 +29,18 @@ input[type=text] {
   box-shadow: 2px 2px 5px #d6d6d6;
 }
 
+input[type=text_incid] {
+  width: 70px;
+  border: 0.5px solid;
+  border-radius: 7px;
+  padding: 10px;
+  box-shadow: 2px 2px 5px #d6d6d6;
+}
+
 input[type=text]:focus {
+  border: 3px solid #555;
+}
+input[type=text_incid]:focus {
   border: 3px solid #555;
 }
 
@@ -44,7 +55,6 @@ input[type=text]:focus {
 
 </style>
 
-<span id="data_update">Mise à jour des données : -/-. Source des données : Santé publique France.</span>
 
 <div class="myDiv">
 
@@ -57,7 +67,7 @@ input[type=text]:focus {
   <br>
 
   Taux d'incidence : 
-  <input type="text" id="tauxincid" onkeyup="myFunction()" value="500">  / 100 000 hab.
+  <input type="text_incid" id="tauxincid" onkeyup="tauxIncidHasChanged()" value="500">  / 100 000 hab.
 
   <br>
   <br>
@@ -67,12 +77,18 @@ input[type=text]:focus {
 
   <br>
   <br>
+  <br>
 
-  <p>Le risque qu'il y ait une personne positive est de</p>
+  <b><p>Le risque qu'il y ait une personne positive dans un événement de <span id="nb_pers_result">--</span> personnes <span id="dep-name"></span>est de :</p></b>
   <h1 id="resultat"></h1>
 
 </div>
 
+<br>
+
+<i><span id="data_update">Mise à jour le <span id="date-update">-/-</span>, données du <span id="date-donnees">-/-</span>. Source des données : Santé publique France.</span></i>
+
+<br>
 <br>
 <br>
 
@@ -107,6 +123,9 @@ fetch('https://raw.githubusercontent.com/rozierguillaume/covid-19/master/data/fr
       departements = data["liste_departements"];
       incidence_departements = data["donnees_departements"];
       updateList();
+
+      document.getElementById("date-update").innerHTML = data["date_donnees"];
+      document.getElementById("date-donnees").innerHTML = data["date_update"];
        
     })
    .catch(function () {
@@ -121,6 +140,8 @@ function replaceBadCharacters(dep){
 function listHasChanged(){
   let dep = document.getElementById('deps_list_choice').value
   document.getElementById('tauxincid').value = incidence_departements[dep]["incidence_cas"];
+  document.getElementById("dep-name").innerHTML = "dans le département " + dep + " ";
+  myFunction()
 
 }
 
@@ -128,8 +149,6 @@ function updateList(){
     html_str = "<option value=''>-- Choisissez un département--</option>";
 
     departements.sort().forEach(dep => {
-      //dep_seul = dep.replace(new RegExp(".*- "), "")
-      //value = replaceBadCharacters(dep_seul)
       html_str += "<option value=\"" + dep + "\">" + dep + "</option>"
       }
     )
@@ -137,13 +156,30 @@ function updateList(){
     document.getElementById("deps_list_choice").innerHTML = html_str;
 }
 
-myFunction()
+tauxIncidHasChanged()
+function tauxIncidHasChanged() {
+  document.getElementById("dep-name").innerHTML = "avec un taux d'incidence de " + document.getElementById('tauxincid').value + " ";
+  myFunction()
+}
+
 function myFunction() {
   document.getElementById('deps_list_choice').value = "";
   tauxincid = document.getElementById('tauxincid').value
   pers = document.getElementById('pers').value
-   resultat = Math.round((1-(1-tauxincid/100000)**pers) *100)
+  resultat = Math.round((1-(1-tauxincid/100000)**pers) *100)
+
   document.getElementById("resultat").innerHTML = resultat.toString() + " %";
+  document.getElementById("nb_pers_result").innerHTML = pers;
+
+  
+
+  if(resultat>10){
+    document.getElementById("resultat").style.color = "orange";}
+
+  if(resultat>50){
+    document.getElementById("resultat").style.color = "red";}
+
+
 
 }
 
