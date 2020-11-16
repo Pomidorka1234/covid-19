@@ -28,9 +28,11 @@ input[type=text] {
   padding: 10px;
   box-shadow: 2px 2px 5px #d6d6d6;
 }
+
 input[type=text]:focus {
   border: 3px solid #555;
 }
+
 .myDiv {
 	border: 0px solid black;
   padding: 10px 30px;
@@ -42,7 +44,7 @@ input[type=text]:focus {
 
 </style>
 
-
+<span id="data_update">Mise à jour des données : -/-. Source des données : Santé publique France.</span>
 
 <div class="myDiv">
 
@@ -55,7 +57,7 @@ input[type=text]:focus {
   <br>
 
   Taux d'incidence : 
-  <input type="text" id="tauxincid" onkeyup="myFunction()" value="500">/100000
+  <input type="text" id="tauxincid" onkeyup="myFunction()" value="500">  / 100 000 hab.
 
   <br>
   <br>
@@ -112,9 +114,13 @@ fetch('https://raw.githubusercontent.com/rozierguillaume/covid-19/master/data/fr
    }
   )
 
-function listHasChanged(){
+function replaceBadCharacters(dep){
+    return dep.replace("'", "&apos;").replace("ô", "&ocirc;")
+  }
 
-  document.getElementById('tauxincid').value = incidence_departements[document.getElementById('deps_list_choice').value]["incidence_cas"];
+function listHasChanged(){
+  let dep = document.getElementById('deps_list_choice').value
+  document.getElementById('tauxincid').value = incidence_departements[dep]["incidence_cas"];
 
 }
 
@@ -124,7 +130,7 @@ function updateList(){
     departements.sort().forEach(dep => {
       //dep_seul = dep.replace(new RegExp(".*- "), "")
       //value = replaceBadCharacters(dep_seul)
-      html_str += "<option value='" + dep + "'>" + dep + "</option>"
+      html_str += "<option value=\"" + dep + "\">" + dep + "</option>"
       }
     )
 
@@ -133,10 +139,12 @@ function updateList(){
 
 myFunction()
 function myFunction() {
+  document.getElementById('deps_list_choice').value = "";
   tauxincid = document.getElementById('tauxincid').value
   pers = document.getElementById('pers').value
    resultat = Math.round((1-(1-tauxincid/100000)**pers) *100)
   document.getElementById("resultat").innerHTML = resultat.toString() + " %";
+
 }
 
 </script>
