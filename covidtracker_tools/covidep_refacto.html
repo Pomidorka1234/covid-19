@@ -491,9 +491,8 @@
 
 
   function displayChart(depa, a_depasse) {
-    console.log(depa)
+
     depa = depa.replace("'","\'")
-    console.log(depa)
     
     document.getElementById("img").innerHTML = "<a href=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/departements_dashboards/hosp_comp_vagues_" + depa + ".jpeg\" target=\"_blank\" rel=\"noopener noreferrer\"><img  id=\"imageTab\" src=\"https://raw.githubusercontent.com/rozierguillaume/covid-19/master/images/charts/france/departements_dashboards/hosp_comp_vagues_" + HtmlEncode(depa) + ".jpeg\" width=\"100%\" style=\"max-width: 900px;\">"
     
