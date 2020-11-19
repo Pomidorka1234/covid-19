@@ -243,6 +243,10 @@ def map_gif(dates, imgs_folder, df, type_ppl, legend_title, min_scale, max_scale
             #lataxis_range=[-50,20], lonaxis_range=[0, 200]
         )
         fig.write_image((imgs_folder+"/{}.jpeg").format(date), scale=1, width=900, height=700)
+        
+        if date==max(dates):
+            fig.write_image((imgs_folder+"/latest.jpeg"), scale=2, width=900, height=700)
+            
     return max_scale
 
 def build_gif(file_gif, imgs_folder, dates):

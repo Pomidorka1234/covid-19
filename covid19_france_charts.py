@@ -26,7 +26,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[2]:
+# In[1]:
 
 
 from multiprocessing import Pool
@@ -54,7 +54,7 @@ PATH = "data/france/stats/"
 now = datetime.now()
 
 
-# In[3]:
+# In[2]:
 
 
 try:
@@ -70,7 +70,7 @@ except:
 
 # # Data download and import
 
-# In[4]:
+# In[3]:
 
 
 import time
@@ -93,13 +93,13 @@ while not success:
 
 # ## Data transformations
 
-# In[5]:
+# In[4]:
 
 
 df, df_confirmed, dates, df_new, df_tests, df_deconf, df_sursaud, df_incid, df_tests_viros = data.import_data()
 
 
-# In[6]:
+# In[5]:
 
 
 df_new_france = df_new.groupby(["jour"]).sum().reset_index()
@@ -118,6 +118,8 @@ df_sursaud_france["taux_covid_acte"] = df_sursaud_france["nbre_acte_corona"] / d
 dates_sursaud = list(dict.fromkeys(list(df_sursaud['date_de_passage'].values))) 
 
 dates_incid = list(dict.fromkeys(list(df_incid['jour'].values))) 
+date_plus_1 = (datetime.strptime(dates_incid[-1], '%Y-%m-%d') + timedelta(days=2)).strftime('%Y-%m-%d')
+
 departements = list(dict.fromkeys(list(df_incid['dep'].values))) 
 
 last_day_plot = (datetime.strptime(max(dates), '%Y-%m-%d') + timedelta(days=1)).strftime("%Y-%m-%d")
@@ -136,7 +138,7 @@ regions = list(dict.fromkeys(list(df['regionName'].values)))
 departements_noms = list(dict.fromkeys(list(df['departmentName'].values))) 
 
 
-# In[7]:
+# In[6]:
 
 
 #Calcul sorties de réa
@@ -162,6 +164,12 @@ df_tests_tot_last15 = df_tests_tot[ df_tests_tot["jour"].isin(dates[-19:]) ]
 #df = df.groupby(["dep", "jour"]).first().reset_index()
 """df_france.loc[len(df_france)-1, "rea"] /= 2
 df_france.loc[len(df_france)-1, "hosp"] /= 2"""
+
+
+# In[ ]:
+
+
+
 
 
 # In[9]:
@@ -196,7 +204,7 @@ for val in ["rea", "hosp", "incid_dc", "rea_new", "hosp_new"]:
     rea_json["date"] = date[-2:] + "/" + date[-5:-3]
     
     valeur = str(data_temp[val].values[-1].astype(int))
-    valeur = traitement_val(valeur, plus_sign=("new" in val))
+    valeur = traitement_val(valeur, plus_sign=(("new" in val) or ("incid" in val)))
         
         
     rea_json["valeur"] = valeur
@@ -252,7 +260,6 @@ def stats_dep_vague(nb_first_values):
                 dict_json["data"][dep]["jour_depassement"] = jour[-2:]+"/"+jour[-5:-3]
                 break
 
-
     argsort = np.argsort(deuxieme_vague)
     premiere_vague_sorted = np.array(premiere_vague)[argsort]
     deuxieme_vague_sorted = np.array(deuxieme_vague)[argsort]
@@ -275,13 +282,14 @@ stats_dep_vague(len(dates)-1)
 # In[11]:
 
 
-def incidence_deps():
+def incidence_deps_data():
     departements_noms = list(dict.fromkeys(list(df['departmentName'].values))) 
-    dict_json = {"liste_departements": [], "donnees_departements": {}, "donnees_france": {}}
+    dict_json = {"liste_departements": [], "donnees_departements": {}, "donnees_france": {}, "date_donnees": dates_incid[-1][-2:]+"/"+dates_incid[-1][-5:-3], "date_update": dates[-1][-2:]+"/"+dates[-1][-5:-3]}
     
     
-    df_temp = df_new[["jour", "incid_dc", "incid_hosp", "departmentName", "dep", "departmentPopulation"]][ df_new["jour"] == dates[-1]]
+    df_temp = df_new[["jour", "incid_dc", "incid_hosp", "incid_rea", "departmentName", "dep", "departmentPopulation"]][ df_new["jour"] >= dates[-7]]
     df_tests_viros_departements = df_tests_viros[(df_tests_viros["jour"] >= dates_incid[-7]) & (df_tests_viros["cl_age90"]==0)].merge(df_temp[["dep", "departmentName"]], left_on="dep", right_on="dep")
+    df_tests_viros_departements = df_tests_viros_departements.groupby(["dep", "jour"]).first().reset_index()
     
     for dep in departements_noms:
         data_json = {"incidence_cas": 0, "incidence_hosp": 0, "incidence_dc": 0}
@@ -290,17 +298,34 @@ def incidence_deps():
         df_dep_tests = df_tests_viros_departements[df_tests_viros_departements["departmentName"] == dep].reset_index()
         
         data_json["incidence_cas"] = int(np.round(df_dep_tests["P"].sum()/df_dep_tests["pop"].values[0]*100000))
-        data_json["incidence_dc"] = df_dep["incid_dc"].values[0]/df_dep["departmentPopulation"].values[0]*100000
-        data_json["incidence_hosp"] = df_dep["incid_hosp"].values[0]/df_dep["departmentPopulation"].values[0]*100000
+        data_json["incidence_dc"] = df_dep["incid_dc"].sum()/df_dep["departmentPopulation"].values[0]*100000
+        data_json["incidence_hosp"] = df_dep["incid_hosp"].sum()/df_dep["departmentPopulation"].values[0]*100000
+        data_json["incidence_rea"] = df_dep["incid_rea"].sum()/df_dep["departmentPopulation"].values[0]*100000
         
         dict_json["donnees_departements"][dep] = data_json
         
     dict_json["liste_departements"] = departements_noms
+    
+    # France
+    df_temp = df_tests_viros_france[df_tests_viros_france["jour"] >= dates_incid[-7]]
+    data_json["incidence_cas"] = (df_temp["P"].sum()/df_temp["pop"].values[0]*100000)
+    
+    df_temp = df_new_france[["jour", "incid_dc", "incid_hosp", "incid_rea", "departmentPopulation"]][ df_new_france["jour"] >= dates[-7]]
+    data_json["incidence_dc"] = df_temp["incid_dc"].sum()/df_temp["departmentPopulation"].values[0]*100000
+    data_json["incidence_hosp"] = df_temp["incid_hosp"].sum()/df_temp["departmentPopulation"].values[0]*100000
+    data_json["incidence_rea"] = df_temp["incid_rea"].sum()/df_temp["departmentPopulation"].values[0]*100000
+    dict_json["donnees_france"] = data_json
         
     with open(PATH + 'incidence_departements.json', 'w') as outfile:
         json.dump(dict_json, outfile)
         
-incidence_deps()
+incidence_deps_data()
+
+
+# In[ ]:
+
+
+
 
 
 # In[12]:
@@ -720,7 +745,7 @@ for i in ("", "log"):
         model.fit(df_new_france["jour"][-40:].index.values.reshape(-1, 1), dc_new_rolling[-40:].fillna(method="bfill"))
 
         index_max = df_new_france["jour"].index.max()
-        x_pred = np.array([x for x in range(index_max, index_max+11)]).reshape(-1, 1)
+        x_pred = np.array([x for x in range(index_max, index_max+8)]).reshape(-1, 1)
 
         date_deb = (datetime.strptime(max(df_incid_france["jour"]), '%Y-%m-%d') - timedelta(days=0))
         x_pred_dates = [(date_deb + timedelta(days=x)).strftime("%Y-%m-%d") for x in range(3, len(x_pred)+3)]
@@ -1165,10 +1190,7 @@ for i in ("", "log"):
         y = df_new_france["incid_rea"],
         name = "Nouveaux décès hosp.",
         marker_color='rgb(201, 4, 4)',
-        #line_width=8,
         opacity=0.8,
-        #fill='tozeroy',
-        #fillcolor="rgba(209, 102, 21,0.3)",
         showlegend=False
     ))
 
@@ -1177,7 +1199,7 @@ for i in ("", "log"):
         model.fit(df_france["jour"][-40:].index.values.reshape(-1, 1), df_france["rea"][-40:].fillna(method="bfill"))
 
         index_max = df_france["jour"].index.max()
-        x_pred = np.array([x for x in range(index_max, index_max+15)]).reshape(-1, 1)
+        x_pred = np.array([x for x in range(index_max, index_max+8)]).reshape(-1, 1)
 
         date_deb = (datetime.strptime(max(df_france["jour"]), '%Y-%m-%d') - timedelta(days=0))
         x_pred_dates = [(date_deb + timedelta(days=x)).strftime("%Y-%m-%d") for x in range(len(x_pred))]
@@ -1494,7 +1516,7 @@ for i in ("", "log"):
         model.fit(df_france["jour"][-40:].index.values.reshape(-1, 1), df_france["hosp"][-40:].fillna(method="bfill"))
 
         index_max = df_france["jour"].index.max()
-        x_pred = np.array([x for x in range(index_max-4, index_max+15)]).reshape(-1, 1)
+        x_pred = np.array([x for x in range(index_max-4, index_max+8)]).reshape(-1, 1)
 
         date_deb = (datetime.strptime(max(df_france["jour"]), '%Y-%m-%d') - timedelta(days=4))
         x_pred_dates = [(date_deb + timedelta(days=x)).strftime("%Y-%m-%d") for x in range(len(x_pred))]
@@ -1755,7 +1777,7 @@ for i in ("", "log"):
     ))
 
     try:
-        break
+        nope
         model = make_pipeline(PolynomialFeatures(3), Ridge())
         model.fit(df_incid_france["jour"][-40:-4].index.values.reshape(-1, 1), df_incid_france_cas_rolling[-40:-4].fillna(method="bfill"))
 
@@ -3340,7 +3362,7 @@ for (data_type, data_type_title, marker_color, fillcolor) in [("hosp", "personne
                                      fill='tozeroy'),
                       i, j)
 
-        fig.update_xaxes(tickformat='%d/%m', nticks=5, range=["2020-07-01", last_day_plot])
+        fig.update_xaxes(tickformat='%d/%m', nticks=5, range=["2020-07-01", date_plus_1])
         #fig.update_yaxes(range=[0, df_clage_france_individuels[data_type].max()])
 
         j += 1
@@ -4717,7 +4739,7 @@ clrs_dep = []
 for val in y_vals.values:
     if val < 60:
         clrs_dep += ["green"]
-    elif val < 80:
+    elif val < 100:
         clrs_dep += ["orange"]
     else:
         clrs_dep += ["red"]
@@ -4851,7 +4873,7 @@ fig["layout"]["annotations"] += (
                     xref='paper',
                     yref='paper',
                     font=dict(size=9),
-                    text='Date : {}. Source : Santé publique France et DREES. Auteur : covidtracker.fr.'.format(datetime.strptime(dates[-1], '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
+                    text='Date : {}. Source : Santé publique France et DREES. Auteur : @guillaumerozier - covidtracker.fr.'.format(datetime.strptime(dates[-1], '%Y-%m-%d').strftime('%d %B %Y')),                    showarrow = False
                 ),)
             
 

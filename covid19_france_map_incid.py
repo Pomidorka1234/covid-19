@@ -21,7 +21,7 @@ Requirements: please see the imports below (use pip3 to install them).
 """
 
 
-# In[1]:
+# In[2]:
 
 
 import france_data_management as data
@@ -38,7 +38,7 @@ import os
 locale.setlocale(locale.LC_ALL, 'fr_FR.UTF-8')
 
 
-# In[2]:
+# In[3]:
 
 
 # Import data from Santé publique France
@@ -49,7 +49,7 @@ with open('data/france/dep.geojson') as response:
     depa = json.load(response)
 
 
-# In[55]:
+# In[4]:
 
 
 def build_map(data_df, img_folder, date_val, date_str = "date", dep_str = "departement", color_str = 'indic_synthese', legend_title="legend_title", title="title", subtitle="", subsubtitle="{}<br>{} (données du {})", color_descrete_map={"Risque Faible":"#DAF7A6", "Alerte":"#b8002a", "Alerte Renforcée":"#7c0030", "Alerte Maximale":"#460d37"}):
@@ -125,7 +125,7 @@ def build_map(data_df, img_folder, date_val, date_str = "date", dep_str = "depar
             print("no data")
 
 
-# In[56]:
+# In[5]:
 
 
 def build_gif(file_gif, imgs_folder, dates):
@@ -144,7 +144,7 @@ def build_gif(file_gif, imgs_folder, dates):
                 print("no image for "+str(date))
 
 
-# In[58]:
+# In[6]:
 
 
 dates_deconf = list(dict.fromkeys(list(df_incid["jour"].values)))
@@ -165,7 +165,7 @@ date = [dates_deconf[-1]]
 build_map(df_incid.sort_values(by=['incidence']), "images/charts/france/dep-map-couvre-feu", date_val=date, date_str = "jour", dep_str = "dep", color_str = 'color_couvre_feu', legend_title="", title="Départements possiblement en couvre feu samedi", subsubtitle="", color_descrete_map={"Pas de couvre-feu":"#a4bda8", "Couvre-feu":"#bd2828"})"""
 
 
-# In[9]:
+# In[8]:
 
 
 """deps_strings=[]
@@ -178,7 +178,7 @@ for val in deps_strings:
 to_disp"""
 
 
-# In[59]:
+# In[9]:
 
 
 build_gif("images/charts/france/incid-cat.gif", "images/charts/france/dep-map-incid-cat", dates_deconf[-33:])

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[5]:
 
 
 import pandas as pd
@@ -11,7 +11,7 @@ import plotly
 from datetime import datetime
 
 
-# In[8]:
+# In[6]:
 
 
 df_mortalite = pd.read_csv('data/france/deces_quotidiens_departement_csv.csv', sep=";", encoding="'windows-1252'")
@@ -23,7 +23,7 @@ df_mortalite_france.loc[:,"Total_deces_2019_diff"] = df_mortalite_france["Total_
 df_mortalite_france.loc[:,"Total_deces_2020_diff"] = df_mortalite_france["Total_deces_2020"].diff().rolling(window=window).mean()
 
 
-# In[9]:
+# In[7]:
 
 
 print(df_mortalite_france.dropna()["Total_deces_2018"].values[-1])
@@ -32,7 +32,7 @@ print(df_mortalite_france.dropna()["Total_deces_2020"].values[-1])
 print(df_mortalite_france.dropna())
 
 
-# In[10]:
+# In[8]:
 
 
 #### Construction du graphique
@@ -96,7 +96,7 @@ fig.update_layout(
                     xref='paper',
                     yref='paper',
                     opacity=0.8,
-                    text='Date : {}. Source : Santé publique France. Auteur : Guillaume Rozier - covidtracker.fr.'.format(datetime.now().strftime('%d %B %Y')),                    showarrow = False
+                    text='Date : {}. Source : INSEE. Auteur : Guillaume Rozier - covidtracker.fr.'.format(datetime.now().strftime('%d %B %Y')),                    showarrow = False
                 )]
                  )
 fig.update_xaxes(title="", nticks=10)

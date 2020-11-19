@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[11]:
+# In[1]:
 
 
 # Guillaume Rozier - 2020 - MIT License
@@ -92,7 +92,7 @@ def tweet_world():
 date_str, new_cases_string, sum_cases_string, new_deaths_string, sum_deaths_string  = tweet_world()
 
 
-# In[10]:
+# In[2]:
 
 
 PATH = "data/stats/"

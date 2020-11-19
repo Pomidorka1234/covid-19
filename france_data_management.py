@@ -45,7 +45,9 @@ def download_data():
     url_tests_viro = df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-dep")]["url"].values[0]
     url_sursaud = df_metadata[df_metadata['url'].str.contains("sursaud.*quot.*dep")]["url"].values[0]
     url_data_clage = df_metadata[df_metadata['url'].str.contains("/donnees-hospitalieres-classe-age-covid19")]["url"].values[0]
-    
+    url_data_sexe = df_metadata[df_metadata['url'].str.contains("/sp-pos-quot-fra")]["url"].values[0]
+
+        
     pbar.update(6)
     data = requests.get(url_data)
     data_new = requests.get(url_data_new)
@@ -56,6 +58,7 @@ def download_data():
     data_incidence = requests.get(url_incidence)
     data_tests_viro = requests.get(url_tests_viro)
     data_clage = requests.get(url_data_clage)
+    data_sexe = requests.get(url_data_sexe)
     
     pbar.update(7)
     with open('data/france/donnes-hospitalieres-covid19.csv', 'wb') as f:
@@ -84,6 +87,9 @@ def download_data():
         
     with open('data/france/donnes-hospitalieres-clage-covid19.csv', 'wb') as f:
         f.write(data_clage.content)
+        
+    with open('data/france/tests_viro-fra-covid19.csv', 'wb') as f:
+        f.write(data_sexe.content)
         
     pbar.update(8)
 
@@ -200,8 +206,14 @@ def import_data_metropoles():
 
 def import_data_hosp_clage():
     df_hosp = pd.read_csv('data/france/donnes-hospitalieres-clage-covid19.csv', sep=";")
+    df_hosp = df_hosp.groupby(["dep", "jour", "cl_age90"]).first().reset_index()
     
     return df_hosp
+
+def import_data_tests_sexe():
+    df = pd.read_csv("data/france/tests_viro-fra-covid19.csv", sep=";")
+    
+    return df
         
 
 
