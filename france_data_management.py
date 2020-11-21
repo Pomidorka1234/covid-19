@@ -206,7 +206,7 @@ def import_data_metropoles():
 
 def import_data_hosp_clage():
     df_hosp = pd.read_csv('data/france/donnes-hospitalieres-clage-covid19.csv', sep=";")
-    df_hosp = df_hosp.groupby(["dep", "jour", "cl_age90"]).first().reset_index()
+    df_hosp = df_hosp.groupby(["reg", "jour", "cl_age90"]).first().reset_index()
     
     return df_hosp
 

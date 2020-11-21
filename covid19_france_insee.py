@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[5]:
+# In[1]:
 
 
 import pandas as pd
@@ -11,7 +11,7 @@ import plotly
 from datetime import datetime
 
 
-# In[6]:
+# In[2]:
 
 
 df_mortalite = pd.read_csv('data/france/deces_quotidiens_departement_csv.csv', sep=";", encoding="'windows-1252'")
@@ -23,7 +23,7 @@ df_mortalite_france.loc[:,"Total_deces_2019_diff"] = df_mortalite_france["Total_
 df_mortalite_france.loc[:,"Total_deces_2020_diff"] = df_mortalite_france["Total_deces_2020"].diff().rolling(window=window).mean()
 
 
-# In[7]:
+# In[3]:
 
 
 print(df_mortalite_france.dropna()["Total_deces_2018"].values[-1])
@@ -32,7 +32,7 @@ print(df_mortalite_france.dropna()["Total_deces_2020"].values[-1])
 print(df_mortalite_france.dropna())
 
 
-# In[8]:
+# In[4]:
 
 
 #### Construction du graphique
