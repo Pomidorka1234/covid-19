@@ -344,9 +344,11 @@ progress[type=black]::-webkit-progress-value{ /* Safari/Chrome */
 
       departements.forEach(dep => {
         tauxincid = incidence_departements[dep]["incidence_cas"]
+        population_dep = incidence_departements[dep]["population"]
+        console.log(population_dep)
         risque = Math.round((1-(1-tauxincid/100000)**pers) * 100);
 
-        nb_evenements_dans_dep = Math.int(population_dep / pers)
+        nb_evenements_dans_dep = population_dep / pers
         nb_contacts_risque_total += risque * nb_evenements_dans_dep * (pers-1);
 
       })
