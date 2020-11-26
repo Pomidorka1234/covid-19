@@ -733,7 +733,7 @@ for log in False, True:
     chart(countries=countries,
           data = data_confirmed, 
           data_rolling = data_confirmed, 
-          by_million_inh = False, 
+          by_million_inh = True, 
           last_d = last_d_default,
           name_fig = name,
           log=log
